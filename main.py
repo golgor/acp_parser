@@ -1,6 +1,4 @@
 import parser
-import os
-import sys
 
 data_files = parser.list_data_files()
 
