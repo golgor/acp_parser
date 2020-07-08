@@ -21,6 +21,7 @@ def time_it(fn, *args, n=1, fn_output=1, **kwargs):
     for i in range(n):
         xreturn = fn(*args, **kwargs)
     end = time.perf_counter()
+
     if fn_output:
         print(f"Timing function {fn.__name__}: {si_format((end - start) / n)}")
 

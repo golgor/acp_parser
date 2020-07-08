@@ -13,7 +13,9 @@ def list_data_files():
     data_dir = os.path.join(os.getcwd(), "data")
     for root, sub, files in os.walk(data_dir):
         file_list = [
-            os.path.join(root, filename) for filename in files if "dacval" in filename
+            os.path.join(root, filename)
+            for filename in files
+            if "dacval" in filename
         ]
         # As "file_list" is a list we can't just append.
         # In that case "data_files" will be a list of
@@ -41,8 +43,12 @@ def convert_to_int(byte_array, stride=2):
         list: a list with all the converted bytes.
     """
     int_array = [
-        int.from_bytes(byte_array[i : i + stride], byteorder="little", signed=True)
-        for i in range(0, len(byte_array), stride)
+        int.from_bytes(
+            byte_array[byte:byte + stride],  # Slicing the size of an int
+            byteorder="little",
+            signed=True
+        )
+        for byte in range(0, len(byte_array), stride)
     ]
 
     return int_array

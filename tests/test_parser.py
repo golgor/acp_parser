@@ -11,6 +11,7 @@ def test_list_data_files():
 
 
 def test_convert_to_int():
+    # Test 32bit (stride = 2) and 64bit (stride = 4)
     assert 1 == 0
 
 
