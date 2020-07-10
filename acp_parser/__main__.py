@@ -1,12 +1,9 @@
-import parser
-import timer
-
-data_files = timer.time_it(parser.list_data_files)
+from cli import cli
 
 
 def main():
-    for file in data_files:
-        print(f"{file}")
+    cli()
 
-if __name__ == "__man__":
+
+if __name__ == "__main__":
     main()

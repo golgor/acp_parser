@@ -1,7 +1,7 @@
 import os
 
 
-def list_data_files():
+def list_data_files(path: str) -> list:
     """Returns all folders in the data directory. If you
     folders are found, creates the data directory.
 
@@ -10,8 +10,14 @@ def list_data_files():
     """
     data_files = list()
 
-    data_dir = os.path.join(os.getcwd(), "data")
+    data_dir = os.path.abspath(path)
     for root, sub, files in os.walk(data_dir):
+        # Skip subdirectories that are more than three levels deep.
+        # This avoids crashing the script in case root of filesystem
+        # is given as input.
+        if (root.count(os.sep) - data_dir.count(os.sep)) > 3:
+            continue
+
         file_list = [
             os.path.join(root, filename)
             for filename in files
@@ -28,7 +34,7 @@ def list_data_files():
     return data_files
 
 
-def convert_to_int(byte_array, stride=2):
+def _convert_to_int(byte_array, stride=2):
     """Converts a byte array to a list with specific
     integer values. Byte arrays is typically a sequence
     of hexadecimal values '\x00\x01\x00\x02' and with
@@ -59,7 +65,8 @@ def read_data(filename):
     with open(filename, "rb") as file:
         data = file.read()
 
-    int_array = convert_to_int(data)
+    int_array = _convert_to_int(data)
+
     return int_array
 
 

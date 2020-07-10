@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "/home/golgor/.pyenv/versions/anaconda3-2020.02/envs/acp_parser/bin/python",
     "python.testing.pytestArgs": [
         "tests"
     ],
