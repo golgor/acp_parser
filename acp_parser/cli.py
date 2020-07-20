@@ -1,7 +1,6 @@
-import os
 import sys
 import click
-import parser
+from parser import Parser
 
 folder_help = "Folder where the data is stored. If not specified " \
               "defaults to current working directory. The folder " \
@@ -9,34 +8,58 @@ folder_help = "Folder where the data is stored. If not specified " \
               "three levels of sub directories."
 output_help = "Output file to write to. If not specified defaults " \
               "to output.csv"
-list_help = "List all the data files found in the specific folder."
+interactive_help = "Using interactive mode to find data files and " \
+                   "process them."
 big_amount_of_data = "This is a big amount of data files and might " \
                      "take some time to compute, are you sure you " \
                      "want to continue? (y/n)\n"
 
 
 @click.command()
-@click.option('--folder', '-f', default=os.getcwd(), help=folder_help)
+@click.option('--folder', '-f', default=None, help=folder_help)
 @click.option('--output', '-o', default="output.csv", help=output_help)
-@click.option('--list', '-l', is_flag=True, help=list_help)
-def cli(folder, output, list):
-    file_list = parser.list_data_files(folder)
+@click.option('--interactive', '-i', is_flag=True, help=interactive_help)
+def cli(folder, output, interactive):
+    parser = Parser(folder)
 
-    if len(file_list) > 8:
-        answer = input(big_amount_of_data)
-        if not ((answer == 'y') or (answer == 'Y')):
-            sys.exit(0)
+    # Using interactive mode to process files.
+    if interactive:
+        data_folder = parser.get_data_folders()
 
-    data = parser.read_data("/mnt/c/software/python/acp_parser/acp_parser/data/W1505 800 Broken blade 800rpm Test 6/testdir/dacval[0]")
-    print(data[0:50])
-    # If [-l, --list] is specified, list all the data files.
+        if len(data_folder) > 1:
+            print('Following data folders found:\n')
+            for idx, folder in enumerate(data_folder, 1):
+                print(f"{idx}. {folder.get_title()}")
 
-    if list:
-        lista = parser.list_data_files(folder)
-        for item in lista:
-            click.echo(item)
+            print('\nChoose what data to process, one or multiple choices '
+                  'possible. Choice separated with <space> i.e. "1 3"')
+
+            choices_s = (input(
+                'What data do you want to process?'
+                ' Default: 1.\n').split()) or [1]
+
+            choices = list(map(int, choices_s))
+
+            if not len(choices) == len(set(choices)):
+                print('\nDuplicate values found. '
+                      'Please only enter each option once!')
+
+            if max(choices) > len(data_folder):
+                print('Wrong input. You can choose between 1 and '
+                      f'{len(data_folder)}.')
+                sys.exit(1)
+
+            print("Processing files!")
+
+        elif len(data_folder) == 1:
+            print(f'{data_folder[0].get_title()} was found')
+            if input("Do you want to process the files?"):
+                print("Processing files!")
+
+        else:
+            print('No data folder found!')
 
 
 # For testing purposes during development only.
-if __name__ == "__main__":
+if __name__ == '__main__':
     cli()

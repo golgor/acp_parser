@@ -1,4 +1,82 @@
 import os
+from pathlib import Path
+
+
+class DataFolder:
+    def __init__(self, path, title):
+        self.path = path
+        self.title = title
+
+        self.data_files = []
+
+        for file in path.iterdir():
+            self.data_files.append(DataFile(file))
+
+    def get_title(self):
+        return self.title
+
+
+class DataFile:
+    def __init__(self, path):
+        self.path = path
+        self.name = path.name
+
+        if 'dacval' in self.name:
+            self.type = "data"
+        elif 'format' in self.name:
+            self.type = "format"
+        elif 'tick' in self.name:
+            self.type = "tick"
+
+
+class Parser:
+    """[summary]
+    """
+    def __init__(self, location: str = None) -> None:
+        """[summary]
+
+        :param location: [description], defaults to None
+        :type location: str, optional
+        """
+        if not location:
+            location = os.getcwd()
+
+        # Resolve absolute path to given folder.
+        self.location = Path(location).resolve()
+        self.data_folders = []
+
+        # Scan for folder containing data files.
+        # Append to list with DataFolder objects.
+        self._scan(self.location)
+
+    def _scan(self, search_path) -> list:
+        """[summary]
+
+        :param search_path: [description]
+        :type search_path: [type]
+        :return: [description]
+        :rtype: list
+        """
+        for root, sub, files in os.walk(search_path):
+            root_path = Path(root)
+
+            # Skip subdirectories that are more than three levels deep.
+            # This avoids crashing the script in case root of filesystem
+            # is given as input.
+            if (len(root_path.parts) - len(search_path.parts)) > 2:
+                continue
+
+            # If a file with 'dacval' contained in the name,
+            # append a DataFolder instance for each data folder found.
+            for file in files:
+                if 'dacval' in file:
+                    self.data_folders.append(
+                        DataFolder(root_path, title=root_path.parts[-2])
+                    )
+                    break
+
+    def get_data_folders(self):
+        return self.data_folders
 
 
 def list_data_files(path: str) -> list:
