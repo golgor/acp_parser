@@ -18,46 +18,48 @@ big_amount_of_data = "This is a big amount of data files and might " \
 @click.command()
 @click.option('--folder', '-f', default=None, help=folder_help)
 @click.option('--output', '-o', default="output.csv", help=output_help)
-@click.option('--interactive', '-i', is_flag=True, help=interactive_help)
-def cli(folder, output, interactive):
+@click.option('--batch', '-b', is_flag=True, help=interactive_help)
+def cli(folder, output, batch):
     parser = Parser(folder)
 
-    # Using interactive mode to process files.
-    if interactive:
-        data_folder = parser.get_data_folders()
+    data_folder = parser.get_data_folders()
 
-        if len(data_folder) > 1:
-            print('Following data folders found:\n')
-            for idx, folder in enumerate(data_folder, 1):
-                print(f"{idx}. {folder.get_title()}")
+    if batch:
+        print("Processing all data.")
+        sys.exit(0)
 
-            print('\nChoose what data to process, one or multiple choices '
-                  'possible. Choice separated with <space> i.e. "1 3"')
+    if len(data_folder) > 1:
+        print('Following data folders found:\n')
+        for idx, folder in enumerate(data_folder, 1):
+            print(f"{idx}. {folder.get_title()}")
 
-            choices_s = (input(
-                'What data do you want to process?'
-                ' Default: 1.\n').split()) or [1]
+        print('\nChoose what data to process, one or multiple choices '
+              'possible. Choice separated with <space> i.e. "1 3"')
 
-            choices = list(map(int, choices_s))
+        choices_s = (input(
+            'What data do you want to process?'
+            ' Default: 1.\n').split()) or [1]
 
-            if not len(choices) == len(set(choices)):
-                print('\nDuplicate values found. '
-                      'Please only enter each option once!')
+        choices = list(map(int, choices_s))
 
-            if max(choices) > len(data_folder):
-                print('Wrong input. You can choose between 1 and '
-                      f'{len(data_folder)}.')
-                sys.exit(1)
+        if not len(choices) == len(set(choices)):
+            print('\nDuplicate values found. '
+                  'Please only enter each option once!')
 
+        if max(choices) > len(data_folder):
+            print('Wrong input. You can choose between 1 and '
+                  f'{len(data_folder)}.')
+            sys.exit(1)
+
+        print("Processing files!")
+
+    elif len(data_folder) == 1:
+        print(f'{data_folder[0].get_title()} was found')
+        if input("Do you want to process the files?"):
             print("Processing files!")
 
-        elif len(data_folder) == 1:
-            print(f'{data_folder[0].get_title()} was found')
-            if input("Do you want to process the files?"):
-                print("Processing files!")
-
-        else:
-            print('No data folder found!')
+    else:
+        print('No data folder found!')
 
 
 # For testing purposes during development only.
